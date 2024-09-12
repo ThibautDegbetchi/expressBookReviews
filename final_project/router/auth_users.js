@@ -48,62 +48,67 @@ regd_users.post("/login", (req, res) => {
 // add a book review
 
 regd_users.post("/auth/review/:isbn", (req, res) => {
-    const isbn = req.params.isbn;
-    const review = req.query.review;
-    const username = req.session.authorization?.username;
+     const isbn = req.params.isbn;  // Extract ISBN from the request parameters
+    const review = req.query.review;  // Get the review from the query parameters
+    const username = req.session.authorization?.username;  // Get the username from the session (assumed logged in)
 
-    if (!isValid(username)) {
+    // Check if the user is logged in
+    if (!username) {
         return res.status(401).json({ message: 'User not logged in' });
     }
 
-    let book = Object.values(books).find(book => book.isbn === isbn);
+    // Find the book by ISBN
+    const bookId = parseInt(isbn); // Convert ISBN to match book key
+    const book = books[bookId];
 
     if (!book) {
         return res.status(404).json({ message: 'Book not found' });
     }
 
+    // If the book has no reviews object, initialize it
     if (!book.reviews) {
         book.reviews = {};
     }
 
-    book.reviews[username] = {
-        reviewer: username,
-        rating: 5,
-        comment: review
-    };
+    // Add or update the review for the current user
+    book.reviews[username] = review;
 
+    // Respond with a success message and the updated reviews
     return res.status(200).json({
-        message: 'Review added/updated successfully',
+        message: `The review for the book with ISBN ${isbn} has been added/updated`,
         reviews: book.reviews
     });
 });
 
 // delete a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-    const username =req.session.authorization?.username;
-    const isbn = req.params.isbn;
+    const isbn = req.params.isbn;  // Extract ISBN from the request parameters
+    const username = req.session.authorization?.username;  // Get the username from the session (assumed logged in)
+
+    // Check if the user is logged in
     if (!username) {
         return res.status(401).json({ message: 'User not logged in' });
     }
 
-    // Rechercher le livre par ISBN
-    let book = Object.values(books).find(book => book.isbn === isbn);
+    // Find the book by ISBN
+    const bookId = parseInt(isbn);  // Convert ISBN to match book key
+    const book = books[bookId];
 
     if (!book) {
         return res.status(404).json({ message: 'Book not found' });
     }
 
-    // Vérifier si l'avis de l'utilisateur existe
-    if (book.reviews && book.reviews[username]) {
-        // Supprimer l'avis de l'utilisateur
+    // Check if the review exists for the logged-in user
+    if (book.reviews[username]) {
+        // Delete the user's review
         delete book.reviews[username];
 
         return res.status(200).json({
-            message: 'Review deleted successfully',
+            message: `review for the ISBN ${isbn} posted by ${username} deleted`,
             reviews: book.reviews
         });
     } else {
-        return res.status(404).json({ message: 'Review not found for this user' });
+        return res.status(404).json({ message: 'Review not found for the logged-in user' });
     }
 });
 
