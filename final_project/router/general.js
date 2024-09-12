@@ -82,12 +82,7 @@ public_users.get('/review/:isbn', function (req, res) {
     if (books[bookId]) {
         const book = books[bookId];
 
-        // Check if the book has reviews
-        if (Object.keys(book.reviews).length > 0) {
-            return res.status(200).json(book.reviews); // Return the reviews
-        } else {
-            return res.status(404).json(book.reviews);
-        }
+        return res.status(200).json(book.reviews); 
     } else {
         return res.status(404).json({ message: 'Book not found' });
     }
