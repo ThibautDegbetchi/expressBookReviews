@@ -5,15 +5,15 @@ const regd_users = express.Router();
 
 let users = [];
 
-const isValid = (username)=>{ //returns boolean
-    return username!==""? true:false;
+const isValid = (username) => { //returns boolean
+    return username !== "" ? true : false;
 }
 
-const authenticatedUser = (username,password)=>{ //returns boolean
-    
-    let a=false;
-    users.forEach((user)=>{
-        if(user.username===username && user.password === password){
+const authenticatedUser = (username, password) => { //returns boolean
+
+    let a = false;
+    users.forEach((user) => {
+        if (user.username === username && user.password === password) {
             a = true;
         }
     });
@@ -21,8 +21,8 @@ const authenticatedUser = (username,password)=>{ //returns boolean
 }
 
 //only registered users can login
-regd_users.post("/login", (req,res) => {
-    const {username,password} = req.body;
+regd_users.post("/login", (req, res) => {
+    const { username, password } = req.body;
 
     // Check if username or password is missing
     if (!username || !password) {
@@ -50,7 +50,7 @@ regd_users.post("/login", (req,res) => {
 regd_users.post("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
     const review = req.query.review;
-    const username = req.session.authorization?.username; 
+    const username = req.session.authorization?.username;
 
     if (!isValid(username)) {
         return res.status(401).json({ message: 'User not logged in' });
@@ -68,7 +68,7 @@ regd_users.post("/auth/review/:isbn", (req, res) => {
 
     book.reviews[username] = {
         reviewer: username,
-        rating: 5, 
+        rating: 5,
         comment: review
     };
 
@@ -80,8 +80,31 @@ regd_users.post("/auth/review/:isbn", (req, res) => {
 
 // delete a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  const isbn=req.params.isbn;
-  
+    const username =req.session.authorization?.username;
+    const isbn = req.params.isbn;
+    if (!username) {
+        return res.status(401).json({ message: 'User not logged in' });
+    }
+
+    // Rechercher le livre par ISBN
+    let book = Object.values(books).find(book => book.isbn === isbn);
+
+    if (!book) {
+        return res.status(404).json({ message: 'Book not found' });
+    }
+
+    // Vérifier si l'avis de l'utilisateur existe
+    if (book.reviews && book.reviews[username]) {
+        // Supprimer l'avis de l'utilisateur
+        delete book.reviews[username];
+
+        return res.status(200).json({
+            message: 'Review deleted successfully',
+            reviews: book.reviews
+        });
+    } else {
+        return res.status(404).json({ message: 'Review not found for this user' });
+    }
 });
 
 module.exports.authenticated = regd_users;
