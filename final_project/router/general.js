@@ -23,7 +23,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
     const book = Object.values(books).find(book => book.isbn === isbn);
 
     if (book) {
-        return res.status(200).json(book);
+        return res.status(200).json({"isbn":book.isbn,"author":book.author,"title":book.title,"reviews":book.reviews});
     } else {
         return res.status(404).json({ message: "no books with this ISBN" });
     }
@@ -50,8 +50,13 @@ public_users.get('/author/:author', function (req, res) {
 public_users.get('/title/:title', function (req, res) {
     const title= req.params.title;
     let book = Object.values(books).find(book=>book.title===title);
+
+    const reorderedBook = {
+        title: book.title,
+        ...book
+    };
     if(book){
-        return res.status(200).json({"book":book});
+        return res.status(200).json({"book":reorderedBook});
     }else{
         return res.status(404).json({"message":"no book with this title"});
     }
@@ -59,8 +64,9 @@ public_users.get('/title/:title', function (req, res) {
 
 //  Get book review
 public_users.get('/review/:isbn', function (req, res) {
-    //Write your code here
-    return res.status(300).json({ message: "Yet to be implemented" });
+    const isbn=req.params.isbn;
+    
+
 });
 
 module.exports.general = public_users;
