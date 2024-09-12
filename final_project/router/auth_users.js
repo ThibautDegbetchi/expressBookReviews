@@ -14,7 +14,6 @@ const authenticatedUser = (username,password)=>{ //returns boolean
     let a=false;
     users.forEach((user)=>{
         if(user.username===username && user.password === password){
-            console.log(true);
             a = true;
         }
     });
@@ -46,12 +45,43 @@ regd_users.post("/login", (req,res) => {
     }
 });
 
+// add a book review
 
+regd_users.post("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const review = req.query.review;
+    const username = req.session.authorization?.username; 
 
-// Add a book review
+    if (!isValid(username)) {
+        return res.status(401).json({ message: 'User not logged in' });
+    }
+
+    let book = Object.values(books).find(book => book.isbn === isbn);
+
+    if (!book) {
+        return res.status(404).json({ message: 'Book not found' });
+    }
+
+    if (!book.reviews) {
+        book.reviews = {};
+    }
+
+    book.reviews[username] = {
+        reviewer: username,
+        rating: 5, 
+        comment: review
+    };
+
+    return res.status(200).json({
+        message: 'Review added/updated successfully',
+        reviews: book.reviews
+    });
+});
+
+// delete a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn=req.params.isbn;
+  
 });
 
 module.exports.authenticated = regd_users;
