@@ -89,4 +89,65 @@ public_users.get('/review/:isbn', function (req, res) {
 
 });
 
+const axios = require('axios');
+
+// URL of the endpoint that returns the list of books
+const booksUrl = 'https://thibautdegbe-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/'; // Replace with your actual URL
+
+async function getBooks() {
+  try {
+    const response = await axios.get(booksUrl);
+    console.log('Books:', response.data);
+    // Handle the list of books here
+  } catch (error) {
+    console.error('Error fetching books:', error);
+  }
+}
+getBooks();
+
+// const bookDetailsUrl = booksUrl+'/isbn/:isbn'; 
+
+// function getBookByISBN(isbn) {
+//   axios.get(`${bookDetailsUrl}${isbn}`)
+//     .then(response => {
+//       console.log('Book Details:', response.data);
+//     })
+//     .catch(error => {
+//       console.error('Error fetching book details:', error);
+//     });
+// }
+
+// const isbn = '978-0-345678-95-5';
+// getBookByISBN(isbn);
+
+
+// const booksByAuthorUrl = booksUrl+"/author/:author"; 
+
+// function getBooksByAuthor(author) {
+//   axios.get(`${booksByAuthorUrl}?author=${encodeURIComponent(author)}`)
+//     .then(response => {
+//       console.log('Books by Author:', response.data);
+//     })
+//     .catch(error => {
+//       console.error('Error fetching books by author:', error);
+//     });
+// }
+
+// 
+// const author = 'Jane Austen'; 
+// getBooksByAuthor(author);
+// const booksByTitleUrl = booksUrl+'/title/:title'; 
+
+// async function getBooksByTitle(title) {
+//   try {
+//     const response = await axios.get(`${booksByTitleUrl}?title=${encodeURIComponent(title)}`);
+//     console.log('Books by Title:', response.data);
+//   } catch (error) {
+//     console.error('Error fetching books by title:', error);
+//   }
+// }
+
+
+// const title = 'Pride and Prejudice'; 
+// getBooksByTitle(title);
 module.exports.general = public_users;
